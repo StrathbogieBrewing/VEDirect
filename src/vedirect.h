@@ -10,8 +10,8 @@ extern "C" {
 
 int vedirect_open(char *port);
 
-int vedirect_read(char *data);
-int vedirect_write(char *data);
+int vedirect_read(unsigned char *data, int maxBytes);
+int vedirect_write(unsigned char *data);
 
 void vedirect_close(void);
 

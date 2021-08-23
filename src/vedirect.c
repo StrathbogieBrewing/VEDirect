@@ -14,14 +14,35 @@
 static int fd = -1;
 static struct termios original_termios;
 
-int asc2hex(int ascii) {
-  if (ascii <= '9')
-    ascii -= '9' + 0x9;
-  else if (ascii <= 'F')
-    ascii -= 'F' + 0xF;
-  else
-    ascii = -ascii;
-  return ascii;
+unsigned char asc2bin(unsigned char ascii) {
+  if (ascii < '0')
+    return 0;
+  unsigned char val = ascii - '0';
+  if (val > 9)
+    val -= 7;
+  if (val > 15)
+    return 0;
+  return val;
+}
+
+static int enframe() {}
+
+static int deframe(unsigned char *frame) {
+  unsigned char *ptr = frame + 1;
+  unsigned char csum = asc2bin(*ptr++);
+  while (*ptr != '\n') {
+    csum += asc2bin(*ptr++) << 4;
+    if (*ptr == '\n')
+      break;
+    csum += asc2bin(*ptr++);
+  }
+
+  printf("Bytes : %d  Checksum : %2.2X  String %s", frameSize, csum, frame);
+  // if (csum == 0x55) {
+  //   *ptr = '\0';
+  //   memcpy(data, buffer, bytesReceived);
+  //   return bytesReceived;
+  // }
 }
 
 void debug(char data) {
@@ -79,77 +100,42 @@ int vedirect_open(char *port) {
   return vedirect_kOK;
 }
 
-int vedirect_read(char *buffer) {
-  static char rxBuffer[vedirect_kBufferSize];
-  static char *rxPointer = NULL;
+int vedirect_read(unsigned char *data, int maxBytes) {
+  static unsigned char buffer[vedirect_kBufferSize];
+  static unsigned char *bufferPointer = NULL;
 
   if (fd < 0) {
-    rxPointer = NULL;
+    bufferPointer = NULL;
     return vedirect_kError;
   }
+
   while (1) {
-    char rxChar;
-    if (read(fd, &rxChar, 1) == 0) {
+    unsigned char rxByte;
+    if (read(fd, &rxByte, 1) == 0) {
+      // no more rx data to process
       return vedirect_kOK;
-    }
-    if (rxChar & 0x80) {
-      rxChar = 0; // set non ascii caharacters to zero}
-      if (rxChar == 0) {
-        rxPointer = rxBuffer;
-      } else {
-        if (*rxPointer == ':') {
-          *rxBuffer = *rxPointer;
-          rxPointer = rxBuffer;
-        } else if (*rxPointer == '\n') {
-          *rxPointer = '\0';
-          strncpy(buffer, rxBuffer, vedirect_kBufferSize);
-          rxPointer = rxBuffer;
-          return strnlen(buffer, vedirect_kBufferSize);
-        } else {
-          // advance buffer pointer
-          rxPointer++;
-          if (rxPointer >= rxBuffer + vedirect_kBufferSize) {
-            rxPointer = rxBuffer;
+    } else {
+      if (rxByte == ':') {
+        bufferPointer = buffer;
+      }
+      if (bufferPointer != NULL) {
+        int bytesReceived = bufferPointer - buffer + 1;
+        if (bytesReceived < vedirect_kBufferSize) {
+          *bufferPointer++ = rxByte;
+          if (rxByte == '\n') {
+            memcpy(data, buffer, bytesReceived);
+            *bufferPointer++ = '\0';
+            deframe(buffer);
+            bufferPointer = NULL;
+            return bytesReceived;
           }
         }
-        if (*rxPointer == ':') {
-          *rxBuffer = *rxPointer;
-          rxPointer = rxBuffer;
-        }
-        if (*rxBuffer == ':') {
-          *rxBuffer = ':';
-        }
-      }
-      if ((*rxPointer == '\n') && (*rxBuffer == ':')) {
-        // terminate string
-        *rxPointer = 0;
-      }
-      // advance buffer pointer
-      if (++rxPointer >= rxBuffer + vedirect_kBufferSize) {
-        // error - buffer overun
-        rxPointer = rxBuffer;
-        return vedirect_kError;
-      }
-
-      if ((*(rxPointer - 1) == '\n') && (*rxBuffer == ':')) {
-        *rxPointer = 0;
-        return rxPointer - rxBuffer;
-        // if (frame_deframe((uint8_t *)buffer, (uint8_t *)rxBuffer)) {
-        //   return vedirect_kReadFrameOK;
-        // } else {
-        //   return vedirect_kReadFrameError;
-        // }
-      }
-      if (*(rxPointer - 1) == ':') {
-        rxPointer = rxBuffer;
-        *rxPointer++ = ':';
-        *rxPointer = 0;
       }
     }
   }
 }
 
-int vedirect_write(char *data) {
+int vedirect_write(unsigned char *data) {
   return write(fd, (uint8_t *)data, strnlen(data, vedirect_kBufferSize));
 }
 
@@ -158,12 +144,99 @@ void vedirect_close(void) {
   fd = -1;
 }
 
+//   if (rxByte == ':') {
+//     bufferPointer = buffer;
+//   } else if (rxByte == '\n') {
+//     if (bufferPointer != NULL) {
+//       int bytesReceived = bufferPointer - buffer + 1;
+//       // if (bytesReceived & 0x01) { // valid frame has odd quantity
+//       // test checksum
+//       // unsigned char *ptr = buffer;
+//       // unsigned char csum = *ptr++;
+//       // while (ptr < bufferPointer) {
+//       //   csum += (*ptr++) << 4;
+//       //   csum += (*ptr++);
+//       // }
+//       // if (csum == 0x55) {
+//       //   *ptr = '\0';
+//       memcpy(data, buffer, bytesReceived);
+//       return bytesReceived;
+//       // }
+//       // }
+//     }
+//     bufferPointer = NULL;
+//   } else {
+//     int value = asc2bin(rxByte);
+//     if ((value < 0) || (bufferPointer >= buffer + vedirect_kBufferSize))
+//     {
+//       bufferPointer = NULL;
+//     }
+//     if (bufferPointer != NULL) {
+//       *bufferPointer++ = value;
+//     }
+//   }
+
+// if (rxChar & 0x80) {
+//   rxChar = 0; // set non ascii caharacters to zero}
+//   if (rxChar == 0) {
+//     rxPointer = rxBuffer;
+//   } else {
+//     if (*rxPointer == ':') {
+//       *rxBuffer = *rxPointer;
+//       rxPointer = rxBuffer;
+//     } else if (*rxPointer == '\n') {
+//       *rxPointer = '\0';
+//       strncpy(buffer, rxBuffer, vedirect_kBufferSize);
+//       rxPointer = rxBuffer;
+//       return strnlen(buffer, vedirect_kBufferSize);
+//     } else {
+//       // advance buffer pointer
+//       rxPointer++;
+//       if (rxPointer >= rxBuffer + vedirect_kBufferSize) {
+//         rxPointer = rxBuffer;
+//       }
+//     }
+//     if (*rxPointer == ':') {
+//       *rxBuffer = *rxPointer;
+//       rxPointer = rxBuffer;
+//     }
+//     if (*rxBuffer == ':') {
+//       *rxBuffer = ':';
+//     }
+//   }
+//   if ((*rxPointer == '\n') && (*rxBuffer == ':')) {
+//     // terminate string
+//     *rxPointer = 0;
+//   }
+//   // advance buffer pointer
+//   if (++rxPointer >= rxBuffer + vedirect_kBufferSize) {
+//     // error - buffer overun
+//     rxPointer = rxBuffer;
+//     return vedirect_kError;
+//   }
+//
+//   if ((*(rxPointer - 1) == '\n') && (*rxBuffer == ':')) {
+//     *rxPointer = 0;
+//     return rxPointer - rxBuffer;
+//     // if (frame_deframe((uint8_t *)buffer, (uint8_t *)rxBuffer)) {
+//     //   return vedirect_kReadFrameOK;
+//     // } else {
+//     //   return vedirect_kReadFrameError;
+//     // }
+//   }
+//   if (*(rxPointer - 1) == ':') {
+//     rxPointer = rxBuffer;
+//     *rxPointer++ = ':';
+//     *rxPointer = 0;
+//   }
+// }
+
 // void update(void) {
-//   int serialRead = serial->read();
-//   if (serialRead >= 0) {
-//     if (serialRead == ':') {
+//   int rxByte = serial->read();
+//   if (rxByte >= 0) {
+//     if (rxByte == ':') {
 //       bufferPointer = buffer;
-//     } else if (serialRead == '\n') {
+//     } else if (rxByte == '\n') {
 //       if (bufferPointer != NULL) {
 //         int bytesReceived = bufferPointer - buffer + 1;
 //         if (bytesReceived & 0x01) { // valid frame has odd quantity
@@ -180,7 +253,7 @@ void vedirect_close(void) {
 //       }
 //       bufferPointer = NULL;
 //     } else {
-//       int value = asc2hex(serialRead);
+//       int value = asc2bin(rxByte);
 //       if ((value < 0) || (bufferPointer >= buffer + kBufferSize)) {
 //         bufferPointer = NULL;
 //       }

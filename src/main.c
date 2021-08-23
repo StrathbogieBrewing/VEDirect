@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "udpReceive.h"
+#include "vedirect.h"
 
 #define kBufferSize (1024)
 #define kUDPPort (31415)
@@ -20,8 +21,10 @@ void hexDump(unsigned char* buffer, int size){
 }
 
 int main(int argc, char *argv[]) {
-  vedirect_open(char *port);
+  vedirect_open(kUSBPort);
   udpReceive_open(kUDPPort);
+
+  vedirect_write(":154\n");
 
   unsigned char receiveBuffer[kBufferSize];
   while (keepRunning) {
@@ -30,8 +33,11 @@ int main(int argc, char *argv[]) {
       hexDump(receiveBuffer, bytesRead);
     }
 
-
-
+    bytesRead = vedirect_read(receiveBuffer, kBufferSize);
+    if(bytesRead > 0){
+      hexDump(receiveBuffer, bytesRead);
+    }
+    
   }
 
   udpReceive_close();
