@@ -17,7 +17,7 @@ void hexDump(char* tag, unsigned char* buffer, int size){
   int i = 0;
   fprintf(stdout, "%s : ", tag);
   while(i < size){
-    fprintf(stdout, "%2.2x ", buffer[i++]);
+    fprintf(stdout, "%2.2X ", buffer[i++]);
   }
   fprintf(stdout, "\n");
 }

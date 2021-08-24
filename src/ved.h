@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define ved_kBufferSize (64)
+#define ved_kBufferSize (32)
 
 struct ved_t {
   int size;
