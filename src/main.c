@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "udpReceive.h"
-#include "vedirect.h"
+#include "tty.h"
+#include "ved.h"
 
 #define kBufferSize (1024)
 #define kUDPPort (31415)
@@ -11,9 +13,9 @@
 static volatile int keepRunning = 1;
 static void intHandler(int dummy) { keepRunning = 0; }
 
-void hexDump(unsigned char* buffer, int size){
+void hexDump(char* tag, unsigned char* buffer, int size){
   int i = 0;
-  fprintf(stdout, "HEX : ");
+  fprintf(stdout, "%s : ", tag);
   while(i < size){
     fprintf(stdout, "%2.2x ", buffer[i++]);
   }
@@ -21,27 +23,37 @@ void hexDump(unsigned char* buffer, int size){
 }
 
 int main(int argc, char *argv[]) {
-  vedirect_open(kUSBPort);
+  tty_open(kUSBPort);
   udpReceive_open(kUDPPort);
 
-  vedirect_write(":154\n");
+  struct ved_t vedata;
+  vedata.size = 1;
+  vedata.data[0] = 1;
+  ved_enframe(&vedata);
+  tty_write(vedata.data, vedata.size);
+  hexDump("VED", vedata.data, vedata.size);
 
   unsigned char receiveBuffer[kBufferSize];
+
   while (keepRunning) {
     int bytesRead = udpReceive_read(receiveBuffer, kBufferSize);
     if(bytesRead){
-      hexDump(receiveBuffer, bytesRead);
+      hexDump("UDP", receiveBuffer, bytesRead);
     }
 
-    bytesRead = vedirect_read(receiveBuffer, kBufferSize);
-    if(bytesRead > 0){
-      hexDump(receiveBuffer, bytesRead);
+    int inByte = tty_read();
+    if(inByte >= 0) {
+      bytesRead = ved_deframe(&vedata, inByte);
+      if(bytesRead > 0){
+        hexDump("VED", vedata.data, vedata.size);
+      }
     }
-    
+
+    usleep(50000);
   }
 
   udpReceive_close();
-  vedirect_close();
+  tty_close();
 
   return EXIT_SUCCESS;
 }

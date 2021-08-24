@@ -4,7 +4,7 @@ PROGRAM    = vedirect
 
 BUILD       = $(shell date +'%y%m%d%H%M')
 
-CSRC       =  main.c udpReceive.c vedirect.c
+CSRC       =  main.c udpReceive.c  tty.c ved.c
 
 BUILDDIR   = bin
 # SOURCEDIR  = src
@@ -43,7 +43,7 @@ deploy:
 	rsync -raL --exclude 'bin' ./ $(REMOTEHOST):vedirect
 
 run:
-	./bin/vedirect /dev/ttyUSB0
+	./bin/vedirect /dev/ttyUSB1
 
 	# run:
 	# 	-pkill tinlog
