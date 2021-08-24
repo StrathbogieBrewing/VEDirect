@@ -2,7 +2,7 @@
 
 #include "ved.h"
 
-unsigned char bin2hex(unsigned char bin) {
+static unsigned char bin2hex(unsigned char bin) {
   bin &= 0x0F;
   if (bin < 10)
     return bin + '0';
@@ -34,10 +34,10 @@ int ved_enframe(struct ved_t *vedata) {
   return vedata->size;
 }
 
-unsigned char hex2bin(unsigned char ascii) {
-  if (ascii < '0')
+static unsigned char hex2bin(unsigned char hex) {
+  if (hex < '0')
     return 0;
-  unsigned char val = ascii - '0';
+  unsigned char val = hex - '0';
   if (val > 9) {
     val -= 7;
     if ((val > 15) || (val < 10))

@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
       hexDump("UDP", receiveBuffer, bytesRead);
     }
 
-    int inByte = tty_read();
-    if(inByte >= 0) {
+    int inByte;
+    while((inByte = tty_read())>= 0) {
       bytesRead = ved_deframe(&vedata, inByte);
       if(bytesRead > 0){
         hexDump("VED", vedata.data, vedata.size);
