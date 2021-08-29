@@ -65,7 +65,8 @@ int ved_deframe(ved_t *vedata, char inByte) {
     vedata->data[vedata->size++] = inByte;
     if (inByte == '\n') {
 
-      // vedata->data[vedata->size] = '\0';
+      vedata->data[vedata->size] = '\0';
+
       // printf("RX  : %s", vedata->data);
       // hexDump("RXD", vedata->data, vedata->size);
 
@@ -80,7 +81,7 @@ int ved_deframe(ved_t *vedata, char inByte) {
       }
       if (csum == 0x55) {
         vedata->size = output - vedata->data - 1;
-        return vedata->size;
+        return vedata->size;  // not including terminating null
       }
     }
   }
