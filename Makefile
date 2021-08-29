@@ -2,17 +2,17 @@ CC         = gcc
 
 PROGRAM    = vedirect
 
-BUILD       = $(shell date +'%y%m%d%H%M')
+BUILD      = $(shell date +'%y%m%d%H%M')
 
-CSRC       =  main.c udpReceive.c  tty.c ved.c
+CSRC       =  main.c udpReceive.c tty.c ved.c msg.c sig.c fmt.c
 
 BUILDDIR   = bin
-# SOURCEDIR  = src
+SOURCEDIR  = src
 EXTDIR     = ext
 
 # include directories
-# INCLUDE    = -IAceBus/src -IAceMessage/src -IAceBMS -IAceLog/src
-# VPATH      = ./AceBus/src ./AceMessage/src ./AceLog/src
+INCLUDE    = -I$(EXTDIR)/AceMessage/src -I$(EXTDIR)/AceBMS
+VPATH      = ./$(EXTDIR)/AceMessage/src ./$(SOURCEDIR)
 
 CFLAGS     = -DBUILD="$(BUILD)" -DPROGRAM="$(PROGRAM)" $(INCLUDE) -g
 
