@@ -12,19 +12,19 @@
 //   fprintf(stdout, "\n");
 // }
 
-static unsigned char bin2hex(unsigned char bin) {
+static uint8_t bin2hex(uint8_t bin) {
   bin &= 0x0F;
   if (bin < 10)
     return bin + '0';
   return bin + 'A' - 10;
 }
 
-int ved_enframe(ved_t *vedata) {
-  unsigned char *input = vedata->data;
-  unsigned char buffer[ved_kBufferSize];
-  unsigned char *output = buffer;
-  unsigned char csum = 0x00;
-  unsigned char src = *input++;
+uint8_t ved_enframe(ved_t *vedata) {
+  uint8_t *input = vedata->data;
+  uint8_t buffer[ved_kBufferSize];
+  uint8_t *output = buffer;
+  uint8_t csum = 0x00;
+  uint8_t src = *input++;
   *output++ = ':';
   *output++ = bin2hex(src);
   csum -= src;
@@ -45,10 +45,10 @@ int ved_enframe(ved_t *vedata) {
   return vedata->size;
 }
 
-static unsigned char hex2bin(unsigned char hex) {
+static uint8_t hex2bin(uint8_t hex) {
   if (hex < '0')
     return 0;
-  unsigned char val = hex - '0';
+  uint8_t val = hex - '0';
   if (val > 9) {
     val -= 7;
     if ((val > 15) || (val < 10))
@@ -57,7 +57,7 @@ static unsigned char hex2bin(unsigned char hex) {
   return val;
 }
 
-int ved_deframe(ved_t *vedata, char inByte) {
+uint8_t ved_deframe(ved_t *vedata, char inByte) {
   if (inByte == ':') {
     vedata->size = 0; // reset data buffer
   }
@@ -70,20 +70,56 @@ int ved_deframe(ved_t *vedata, char inByte) {
       // printf("RX  : %s", vedata->data);
       // hexDump("RXD", vedata->data, vedata->size);
 
-      unsigned char *input = vedata->data;
-      unsigned char *output = vedata->data;
-      unsigned char csum = 0x00;
+      uint8_t *input = vedata->data;
+      uint8_t *output = vedata->data;
+      uint8_t csum = 0x00;
       while ((*input != '\n') && (*input != '\0')) {
-        unsigned char byte = hex2bin(*input++) << 4;
+        uint8_t byte = hex2bin(*input++) << 4;
         byte += hex2bin(*input++);
         csum += byte;
         *output++ = byte;
       }
       if (csum == 0x55) {
         vedata->size = output - vedata->data - 1;
-        return vedata->size;  // not including terminating null
+        return vedata->size; // not including terminating null
       }
     }
   }
   return 0;
+}
+
+uint8_t ved_getCommand(ved_t *vedata) { return vedata->data[0]; }
+
+uint16_t ved_getId(ved_t *vedata) {
+  return (((uint16_t)vedata->data[2]) << 8) + (uint16_t)vedata->data[1];
+}
+
+uint8_t ved_getFlags(ved_t *vedata) { return vedata->data[3]; }
+
+int32_t ved_getU16(ved_t *vedata) {
+  return (((uint32_t)vedata->data[5]) << 8) + (uint32_t)vedata->data[4];
+}
+
+int32_t ved_getU32(ved_t *vedata) {
+  return (((uint32_t)vedata->data[7]) << 24) +
+         (((uint32_t)vedata->data[6]) << 16) +
+         (((uint32_t)vedata->data[5]) << 8) + (uint32_t)vedata->data[4];
+}
+
+void ved_setCommand(ved_t *vedata, uint8_t value){
+  vedata->data[0] = value;
+  vedata->size = 1;
+}
+
+void ved_setId(ved_t *vedata, uint16_t value){
+  vedata->data[1] = value;
+  vedata->data[2] = (value >> 8);
+  vedata->data[3] = 0;
+  vedata->size = 4;
+}
+
+void ved_setU16(ved_t *vedata, uint16_t value){
+  vedata->data[5] = (value >> 8);
+  vedata->data[4] = value;
+  vedata->size = 6;
 }
