@@ -4,22 +4,21 @@
 #include "Arduino.h"
 #include "ved.h"
 
-typedef enum {
+enum {
   VEDirect_kBatterySense = 0x2002,
   VEDirect_kPanelPower = 0xEDBC,
   VEDirect_kPanelVoltage = 0xEDBB,
+};
 
-} VEDirect_id_t;
-
-typedef void (*receiveCallback)(VEDirect_id_t id, int32_t value);
+typedef void (*receiveCallback)(uint16_t id, int32_t value);
 
 class VEDirect {
 public:
   VEDirect(HardwareSerial &serial, receiveCallback receive);
   void begin();
   void update();
-  size_t set(VEDirect_id_t id, int32_t value);
-  size_t get(VEDirect_id_t id);
+  size_t set(uint16_t id, int32_t value);
+  size_t get(uint16_t id);
   size_t ping();
 private:
   HardwareSerial &serialPort;

@@ -1,16 +1,6 @@
 #include <string.h>
-// #include <stdio.h>
 
 #include "ved.h"
-
-// static void hexDump(char* tag, unsigned char* buffer, int size){
-//   int i = 0;
-//   fprintf(stdout, "%s : ", tag);
-//   while(i < size){
-//     fprintf(stdout, "%2.2X ", buffer[i++]);
-//   }
-//   fprintf(stdout, "\n");
-// }
 
 static uint8_t bin2hex(uint8_t bin) {
   bin &= 0x0F;
@@ -64,12 +54,7 @@ uint8_t ved_deframe(ved_t *vedata, char inByte) {
   if (vedata->size < ved_kBufferSize - 2) {
     vedata->data[vedata->size++] = inByte;
     if (inByte == '\n') {
-
       vedata->data[vedata->size] = '\0';
-
-      // printf("RX  : %s", vedata->data);
-      // hexDump("RXD", vedata->data, vedata->size);
-
       uint8_t *input = vedata->data;
       uint8_t *output = vedata->data;
       uint8_t csum = 0x00;
@@ -81,7 +66,7 @@ uint8_t ved_deframe(ved_t *vedata, char inByte) {
       }
       if (csum == 0x55) {
         vedata->size = output - vedata->data - 1;
-        return vedata->size; // not including terminating null
+        return vedata->size; // size not including terminating null
       }
     }
   }

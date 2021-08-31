@@ -18,10 +18,8 @@ void VEDirect::begin() {
 void VEDirect::update() {
   while (serialPort.available() > 0) {
     char rxData = serialPort.read();
-    Serial.write(rxData);
     uint8_t rxCount = ved_deframe(&rxBuffer, rxData);
     if (rxCount > 0) {
-      // Serial.println(rxCount);
       rxBuffer.size = 0;
       uint8_t command = ved_getCommand(&rxBuffer);
       if ((command = VEDirect_kGetCommand) ||
@@ -44,7 +42,7 @@ void VEDirect::update() {
   }
 }
 
-size_t VEDirect::set(VEDirect_id_t id, int32_t value) {
+size_t VEDirect::set(uint16_t id, int32_t value) {
   ved_t txBuffer;
   ved_setCommand(&txBuffer, VEDirect_kSetCommand);
   ved_setId(&txBuffer, id);
@@ -59,7 +57,7 @@ size_t VEDirect::set(VEDirect_id_t id, int32_t value) {
   return 0;
 }
 
-size_t VEDirect::get(VEDirect_id_t id){
+size_t VEDirect::get(uint16_t id){
   ved_t txBuffer;
   ved_setCommand(&txBuffer, VEDirect_kSetCommand);
   ved_setId(&txBuffer, id);
