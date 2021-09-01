@@ -8,6 +8,7 @@ enum {
   VEDirect_kBatterySense = 0x2002,
   VEDirect_kPanelPower = 0xEDBC,
   VEDirect_kPanelVoltage = 0xEDBB,
+  VEDirect_kBatteryVoltage = 0xEDD5,
 };
 
 typedef void (*receiveCallback)(uint16_t id, int32_t value);

@@ -30,10 +30,10 @@ void VEDirect::update() {
         case VEDirect_kPanelPower:
           rxCallback(id, ved_getU32(&rxBuffer));
           break;
+        case VEDirect_kBatteryVoltage:
         case VEDirect_kPanelVoltage:
           rxCallback(id, ved_getU16(&rxBuffer));
           break;
-
         default:
           break;
         }
