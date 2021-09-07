@@ -27,11 +27,13 @@ void VEDirect::update() {
           (command = VEDirect_kAsyncCommand)) {
         uint16_t id = ved_getId(&rxBuffer);
         switch (id) {
-        case VEDirect_kPanelPower:
-          rxCallback(id, ved_getU32(&rxBuffer));
-          break;
-        case VEDirect_kBatteryVoltage:
+        // case VEDirect_kPanelPower:
+        //   rxCallback(id, ved_getU32(&rxBuffer));
+        //   break;
         case VEDirect_kPanelVoltage:
+        case VEDirect_kPanelCurrent:
+        case VEDirect_kChargeVoltage:
+        case VEDirect_kChargeCurrent:
           rxCallback(id, ved_getU16(&rxBuffer));
           break;
         default:

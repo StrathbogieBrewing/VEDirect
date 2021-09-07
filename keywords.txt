@@ -1,1 +1,10 @@
-VEDirect LITERAL1
+VEDirect KEYWORD1
+set KEYWORD2
+get KEYWORD2
+ping KEYWORD2
+
+VEDirect_kBatterySense LITERAL1
+VEDirect_kPanelVoltage LITERAL1
+VEDirect_kChargeVoltage LITERAL1
+VEDirect_kPanelCurrent LITERAL1
+VEDirect_kChargeCurrent LITERAL1
