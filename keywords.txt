@@ -8,3 +8,4 @@ VEDirect_kPanelVoltage LITERAL1
 VEDirect_kChargeVoltage LITERAL1
 VEDirect_kPanelCurrent LITERAL1
 VEDirect_kChargeCurrent LITERAL1
+VEDirect_kPanelPower LITERAL1

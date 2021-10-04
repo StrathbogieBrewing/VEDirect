@@ -1,7 +1,6 @@
 #include "VEDirect.h"
 
 #define VEDirect_kBaud (19200)
-
 #define VEDirect_kPingCommand (0x01)
 #define VEDirect_kSetCommand (0x08)
 #define VEDirect_kGetCommand (0x07)

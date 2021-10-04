@@ -5,14 +5,12 @@
 #include "ved.h"
 
 // subset of register definitions from BlueSolar-HEX-protocol-MPPT.pdf
-enum {
-  VEDirect_kBatterySense = 0x2002,
-  VEDirect_kPanelVoltage = 0xEDBB,
-  VEDirect_kChargeVoltage = 0xEDD5,
-  VEDirect_kPanelCurrent = 0xEDBD,
-  VEDirect_kChargeCurrent = 0xEDD7,
-  VEDirect_kPanelPower = 0xEDBC,
-};
+#define VEDirect_kBatterySense   (0x2002)
+#define VEDirect_kPanelVoltage   (0xEDBB)
+#define VEDirect_kChargeVoltage  (0xEDD5)
+#define VEDirect_kPanelCurrent   (0xEDBD)
+#define VEDirect_kChargeCurrent  (0xEDD7)
+#define VEDirect_kPanelPower     (0xEDBC)
 
 typedef void (*receiveCallback)(uint16_t id, int32_t value);
 
