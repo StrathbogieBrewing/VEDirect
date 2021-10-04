@@ -1,6 +1,6 @@
 #include "VEDirect.h"
 
-void mppt(uint16_t id, int32_t value);
+void mpptCallback(uint16_t id, int32_t value);
 VEDirect mppt(Serial1, mpptCallback);
 
 uint16_t panelVoltage = 0;
@@ -12,10 +12,12 @@ void setup() {
 }
 
 void loop() {
+  static unsigned long secondsTimer = 0;
   mppt.update();
-  if(millis() % 1000 == 0) {
-    mppt.ping();
-    delay_ms(1);
+  unsigned long m = millis();
+  if(m - secondsTimer > 1000L){
+    secondsTimer = m;
+    mppt.ping();  // send oing every second
   }
 }
 
