@@ -2,6 +2,7 @@
 
 #define VEDirect_kBaud (19200)
 #define VEDirect_kPingCommand (0x01)
+#define VEDirect_kRestartCommand (0x06)
 #define VEDirect_kSetCommand (0x08)
 #define VEDirect_kGetCommand (0x07)
 #define VEDirect_kAsyncCommand (0x0A)
@@ -49,13 +50,18 @@ size_t VEDirect::set(uint16_t id, int32_t value) {
   ved_setId(&txBuffer, id);
   switch (id) {
   case VEDirect_kBatterySense:
+  case VEDirect_VoltageSetpoint:
+  case VEDirect_CurrentLimit:
     ved_setU16(&txBuffer, value);
-    ved_enframe(&txBuffer);
-    return serialPort.write(txBuffer.data, txBuffer.size);
-  default:
     break;
+  case VEDirect_kNetworkMode:
+    ved_setU8(&txBuffer, value);
+    break;
+  default:
+    return 0;
   }
-  return 0;
+  ved_enframe(&txBuffer);
+  return serialPort.write(txBuffer.data, txBuffer.size);
 }
 
 size_t VEDirect::get(uint16_t id){
@@ -69,6 +75,13 @@ size_t VEDirect::get(uint16_t id){
 size_t VEDirect::ping() {
   ved_t txBuffer;
   ved_setCommand(&txBuffer, VEDirect_kPingCommand);
+  ved_enframe(&txBuffer);
+  return serialPort.write(txBuffer.data, txBuffer.size);
+}
+
+size_t VEDirect::restart() {
+  ved_t txBuffer;
+  ved_setCommand(&txBuffer, VEDirect_kRestartCommand);
   ved_enframe(&txBuffer);
   return serialPort.write(txBuffer.data, txBuffer.size);
 }

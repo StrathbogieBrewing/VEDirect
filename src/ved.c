@@ -81,6 +81,10 @@ uint16_t ved_getId(ved_t *vedata) {
 
 uint8_t ved_getFlags(ved_t *vedata) { return vedata->data[3]; }
 
+int32_t ved_getU8(ved_t *vedata) {
+  return (uint32_t)vedata->data[4];
+}
+
 int32_t ved_getU16(ved_t *vedata) {
   return (((uint32_t)vedata->data[5]) << 8) + (uint32_t)vedata->data[4];
 }
@@ -101,6 +105,11 @@ void ved_setId(ved_t *vedata, uint16_t value){
   vedata->data[2] = (value >> 8);
   vedata->data[3] = 0;
   vedata->size = 4;
+}
+
+void ved_setU8(ved_t *vedata, uint8_t value){
+  vedata->data[4] = value;
+  vedata->size = 5;
 }
 
 void ved_setU16(ved_t *vedata, uint16_t value){

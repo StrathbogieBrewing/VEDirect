@@ -12,6 +12,12 @@
 #define VEDirect_kChargeCurrent  (0xEDD7)
 #define VEDirect_kPanelPower     (0xEDBC)
 
+#define VEDirect_kNetworkMode    (0x200E)
+#define VEDirect_VoltageSetpoint (0x2001)
+#define VEDirect_CurrentLimit    (0x2015)
+
+#define VEDirect_kExternalControlMode (0x05)
+
 typedef void (*receiveCallback)(uint16_t id, int32_t value);
 
 class VEDirect {
@@ -22,6 +28,7 @@ public:
   size_t set(uint16_t id, int32_t value);
   size_t get(uint16_t id);
   size_t ping();
+  size_t restart();
 private:
   HardwareSerial &serialPort;
   receiveCallback rxCallback;
