@@ -22,9 +22,9 @@ void VEDirect::update() {
     if (rxCount > 0) {
       rxBuffer.size = 0;
       uint8_t command = ved_getCommand(&rxBuffer);
-      if ((command = VEDirect_kGetCommand) ||
-          (command = VEDirect_kSetCommand) ||
-          (command = VEDirect_kAsyncCommand)) {
+      if ((command == VEDirect_kGetCommand) ||
+          (command == VEDirect_kSetCommand) ||
+          (command == VEDirect_kAsyncCommand)) {
         uint16_t id = ved_getId(&rxBuffer);
         switch (id) {
         case VEDirect_kPanelPower:
