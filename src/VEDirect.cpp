@@ -66,7 +66,7 @@ size_t VEDirect::set(uint16_t id, int32_t value) {
 
 size_t VEDirect::get(uint16_t id){
   ved_t txBuffer;
-  ved_setCommand(&txBuffer, VEDirect_kSetCommand);
+  ved_setCommand(&txBuffer, VEDirect_kGetCommand);
   ved_setId(&txBuffer, id);
   ved_enframe(&txBuffer);
   return serialPort.write(txBuffer.data, txBuffer.size);
