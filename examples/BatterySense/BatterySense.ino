@@ -1,5 +1,14 @@
 #include "VEDirect.h"
 
+// VE Direct Plug
+// ┏━━     ━━┓
+// ┃ 1|2|3|4 ┃
+// ┗━━━━━━━━━┛
+// 1. GND
+// 2. VE.Direct-RX - connects to Arduino TX1
+// 3. VE.Direct-TX - connects to Arduino RX1
+// 4. Power +
+
 void mpptCallback(uint16_t id, int32_t value);
 VEDirect mppt(Serial1, mpptCallback);
 
@@ -17,7 +26,7 @@ void loop() {
   unsigned long m = millis();
   if(m - secondsTimer > 1000L){
     secondsTimer = m;
-    mppt.ping();  // send oing every second
+    mppt.ping();  // send ping every second
   }
 }
 
