@@ -15,6 +15,7 @@
 #define VEDirect_kNetworkMode    (0x200E)
 #define VEDirect_VoltageSetpoint (0x2001)
 #define VEDirect_CurrentLimit    (0x2015)
+#define VEDirect_kDeviceState    (0x0201)
 
 #define VEDirect_kExternalControlMode (0x05)
 

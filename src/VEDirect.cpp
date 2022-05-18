@@ -36,6 +36,9 @@ void VEDirect::update() {
         case VEDirect_kChargeCurrent:
           rxCallback(id, ved_getU16(&rxBuffer));
           break;
+        case VEDirect_kDeviceState:
+          rxCallback(id, ved_getU8(&rxBuffer));
+          break;
         default:
           break;
         }
